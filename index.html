@@ -809,6 +809,83 @@
     .weekly-math { border-left: none; border-top: 1px dashed var(--border); padding-left: 0; padding-top: 14px; }
   }
 
+  /* ─── weekly breakdown by category ─── */
+  .weekly-breakdown {
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 18px 8px;
+    margin-bottom: 22px;
+  }
+  .wb-row {
+    display: grid;
+    grid-template-columns: 14px minmax(110px, 1fr) auto auto 2fr;
+    gap: 14px;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border-soft);
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+  }
+  .wb-row:last-child { border-bottom: none; }
+  .wb-row .swatch {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+  .wb-row .cat {
+    color: var(--text-bright);
+    font-weight: 500;
+  }
+  .wb-row .weekly {
+    color: var(--text-bright);
+    font-weight: 500;
+    font-size: 14px;
+    text-align: right;
+    min-width: 80px;
+  }
+  .wb-row .weekly .unit { color: var(--text-faint); font-size: 11px; font-weight: 400; margin-left: 1px; }
+  .wb-row .monthly {
+    color: var(--text-faint);
+    font-size: 12px;
+    text-align: right;
+    min-width: 90px;
+  }
+  .wb-row .items {
+    color: var(--text-faint);
+    font-size: 11.5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .wb-row.total {
+    border-top: 1px solid var(--border);
+    border-bottom: none;
+    margin-top: 4px;
+    padding-top: 12px;
+    font-weight: 500;
+  }
+  .wb-row.total .cat { color: var(--text-bright); }
+  .wb-row.savings .swatch { background: var(--task); }
+  .wb-row.savings .weekly { color: var(--task); }
+  .wb-row.free .swatch { background: var(--accent); }
+  .wb-row.free .weekly { color: var(--accent); font-size: 15px; }
+  .wb-row.free .cat { color: var(--accent); }
+  .wb-row.over .weekly { color: var(--error); }
+  .wb-row.over .cat { color: var(--error); }
+  .wb-empty {
+    color: var(--text-faint);
+    font-style: italic;
+    font-size: 12.5px;
+    padding: 14px 0;
+    text-align: center;
+  }
+  @media (max-width: 720px) {
+    .wb-row { grid-template-columns: 14px 1fr auto auto; }
+    .wb-row .items { display: none; }
+  }
+
   /* ─── savings goals ─── */
   .goals-grid {
     display: grid;
@@ -2738,6 +2815,28 @@ function calculateWeeklyAllowance(monthlyIncome, monthlyBills) {
   };
 }
 
+// Aggregate recurring bills by category and return sorted weekly/monthly figures.
+// Used to show "you can spend $X/wk on groceries" style breakdown.
+function calculateWeeklyByCategory() {
+  const map = {};
+  for (const b of state.bills) {
+    if (!b.recurring || !(b.amount > 0)) continue;
+    const monthly = monthlyEquivalent(b.amount, b.recurring);
+    const cat = b.category || 'uncategorized';
+    if (!map[cat]) map[cat] = { monthly: 0, names: [] };
+    map[cat].monthly += monthly;
+    map[cat].names.push(b.name);
+  }
+  return Object.entries(map).map(([category, data]) => ({
+    category,
+    label: getCategoryLabel(category),
+    color: getCategoryColor(category),
+    monthly: data.monthly,
+    weekly: data.monthly / 4.33,
+    names: data.names,
+  })).sort((a, b) => b.monthly - a.monthly);
+}
+
 function generateRecommendations(income, totalBills, billsList, buckets) {
   const recs = [];
   if (income === 0) {
@@ -3294,6 +3393,8 @@ function renderBudget() {
 
     ${renderWeeklyAllowance(totalIncome, totalBills)}
 
+    ${renderWeeklyBreakdown(totalIncome, totalBills)}
+
     <div class="budget-buckets">
       ${bucketHTML}
     </div>
@@ -3309,6 +3410,63 @@ function renderBudget() {
     </div>
     <div class="recommendations">
       ${recsHTML || '<div class="rec-item"><div class="rec-text" style="color: var(--text-faint); font-style: italic;">Add income and bills to see personalized recommendations.</div></div>'}
+    </div>
+  `;
+}
+
+function renderWeeklyBreakdown(totalIncome, totalBills) {
+  const cats = calculateWeeklyByCategory();
+  if (cats.length === 0) {
+    return ''; // skip section entirely if no recurring bills
+  }
+  const w = calculateWeeklyAllowance(totalIncome, totalBills);
+  const savingsWeekly = w.monthlySavingsTarget / 4.33;
+  const freeWeekly = w.weekly;
+  const isOver = freeWeekly < 0;
+
+  const catRows = cats.map(c => {
+    const itemsLabel = c.names.length === 1
+      ? c.names[0]
+      : `${c.names.length} bills: ${c.names.slice(0, 2).join(', ')}${c.names.length > 2 ? '…' : ''}`;
+    return `<div class="wb-row">
+      <div class="swatch" style="background: ${c.color};"></div>
+      <span class="cat">${c.label}</span>
+      <span class="weekly">${fmtMoney(c.weekly, {round: true})}<span class="unit">/wk</span></span>
+      <span class="monthly">${fmtMoney(c.monthly, {round: true})}/mo</span>
+      <span class="items" title="${escHTML(c.names.join(', '))}">${escHTML(itemsLabel)}</span>
+    </div>`;
+  }).join('');
+
+  return `
+    <div class="ov-section-head">
+      <span class="label">Weekly budget by category</span>
+      <span class="sub">monthly bills ÷ 4.33 weeks</span>
+    </div>
+    <div class="weekly-breakdown">
+      ${catRows}
+      <div class="wb-row total">
+        <div></div>
+        <span class="cat">Bills total</span>
+        <span class="weekly">${fmtMoney(totalBills/4.33, {round: true})}<span class="unit">/wk</span></span>
+        <span class="monthly">${fmtMoney(totalBills, {round: true})}/mo</span>
+        <span></span>
+      </div>
+      ${w.monthlySavingsTarget > 0 ? `
+        <div class="wb-row savings">
+          <div class="swatch"></div>
+          <span class="cat">Savings target</span>
+          <span class="weekly">${fmtMoney(savingsWeekly, {round: true})}<span class="unit">/wk</span></span>
+          <span class="monthly">${fmtMoney(w.monthlySavingsTarget, {round: true})}/mo</span>
+          <span class="items">${w.savingsBreakdown.map(b => escHTML(b.name)).join(', ') || ''}</span>
+        </div>
+      ` : ''}
+      <div class="wb-row free ${isOver ? 'over' : ''}">
+        <div class="swatch"></div>
+        <span class="cat">${isOver ? 'Over budget' : 'Free to spend'}</span>
+        <span class="weekly">${isOver ? '−' : ''}${fmtMoney(Math.abs(freeWeekly), {round: true})}<span class="unit">/wk</span></span>
+        <span class="monthly">${isOver ? '−' : ''}${fmtMoney(Math.abs(w.monthlyAvailable), {round: true})}/mo</span>
+        <span class="items">discretionary spending</span>
+      </div>
     </div>
   `;
 }
