@@ -1930,6 +1930,15 @@ function payBill(id) {
   }
   saveState();
 }
+function unpayBill(id) {
+  const b = state.bills.find(x => x.id === id);
+  if (!b || !b.paid) return;
+  b.paid = false; b.paidAt = null;
+  saveState();
+  // Note: if this was a recurring bill, marking it paid auto-spawned a next-period
+  // instance. We leave that instance alone — if the user wants to clean it up,
+  // they can delete it manually from the Bills table.
+}
 function removeItem(id) {
   const map = { t: 'tasks', b: 'bills', e: 'events', i: 'income' };
   const collection = map[id[0]];
@@ -2443,7 +2452,7 @@ function renderUpcomingBillsSection(upcoming, upcomingTotal) {
           else if (days === 1) { dueIn = 'tomorrow'; }
           else { dueIn = `in ${days} days`; }
           const action = b.paid
-            ? `<span class="paid-tag">paid</span>`
+            ? `<span class="paid-tag">paid</span><button class="pay-btn" data-action="unpay-bill" data-id="${b.id}" style="margin-left: 6px;" title="Mark as unpaid">undo</button>`
             : `<button class="pay-btn" data-action="pay-bill" data-id="${b.id}">mark paid</button>`;
           return `<div class="${cls.join(' ')}">
             <span class="${dateCls}">${formatDate(b.dueDate)}</span>
@@ -3016,6 +3025,7 @@ function renderBillsSheet() {
               <td class="status ${r.status}">${r.status}</td>
               <td class="actions">
                 ${!r.paid && !isEmpty ? `<button class="success" data-action="pay-bill" data-id="${r.id}">mark paid</button>` : ''}
+                ${r.paid ? `<button data-action="unpay-bill" data-id="${r.id}">mark unpaid</button>` : ''}
                 <button class="${editCls}" data-action="edit" data-type="bills" data-id="${r.id}">${editLabel}</button>
                 <button class="danger" data-action="remove" data-id="${r.id}">delete</button>
               </td>
@@ -3215,6 +3225,7 @@ document.addEventListener('click', (e) => {
   else if (action === 'close-modal') closeAllModals();
   else if (action === 'toggle-task') { toggleTask(target.dataset.id); render(); }
   else if (action === 'pay-bill') { payBill(target.dataset.id); render(); }
+  else if (action === 'unpay-bill') { unpayBill(target.dataset.id); render(); }
   else if (action === 'remove') {
     if (confirm('Delete this item?')) { removeItem(target.dataset.id); render(); }
   }
