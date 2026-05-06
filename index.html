@@ -1159,6 +1159,14 @@
     font-weight: 400;
     margin-top: 1px;
   }
+  table.sheet td.name .last-paid-cap {
+    display: block;
+    font-size: 10.5px;
+    color: var(--success);
+    letter-spacing: 0.3px;
+    font-weight: 400;
+    margin-top: 1px;
+  }
   table.sheet td.pct {
     font-variant-numeric: tabular-nums;
     text-align: right;
@@ -1600,6 +1608,50 @@ const PRESET_BILLS = [
   if (touched) saveState();
 }
 
+// migrate: clean up duplicate recurring bills caused by the old auto-spawn-on-paid
+// behavior. When you marked a recurring bill paid, the previous code created an
+// unpaid copy for the next period — but the original kept its recurring flag, so
+// BOTH bills counted toward monthly totals. New model: recurring bills have no
+// permanent "paid" status; they track lastPaidAt and advance dueDate when paid.
+{
+  let touched = false;
+  const recurring = state.bills.filter(b => b.recurring);
+  const paidRecurring = recurring.filter(b => b.paid);
+  const toRemove = new Set();
+
+  for (const paid of paidRecurring) {
+    if (toRemove.has(paid.id)) continue;
+    // Find the auto-spawned unpaid sibling: same name+amount+freq, later dueDate
+    const sibling = recurring.find(b =>
+      !b.paid &&
+      !toRemove.has(b.id) &&
+      b.id !== paid.id &&
+      (b.name || '').toLowerCase().trim() === (paid.name || '').toLowerCase().trim() &&
+      Number(b.amount) === Number(paid.amount) &&
+      b.recurring === paid.recurring &&
+      b.dueDate && paid.dueDate && b.dueDate > paid.dueDate
+    );
+    if (sibling) {
+      // Merge: keep the (unpaid, future-due) sibling, drop the (paid, past-due) original.
+      // Preserve the paidAt timestamp on the sibling as lastPaidAt.
+      sibling.lastPaidAt = paid.paidAt || Date.now();
+      toRemove.add(paid.id);
+      touched = true;
+    } else {
+      // No sibling — convert the standalone paid recurring to the new model
+      paid.lastPaidAt = paid.paidAt || Date.now();
+      paid.paid = false;
+      paid.paidAt = null;
+      touched = true;
+    }
+  }
+
+  if (toRemove.size > 0) {
+    state.bills = state.bills.filter(b => !toRemove.has(b.id));
+  }
+  if (touched) saveState();
+}
+
 function loadState() {
   try { return JSON.parse(localStorage.getItem(STORAGE_KEY)); } catch { return null; }
 }
@@ -1912,32 +1964,53 @@ function toggleTask(id) {
 }
 function payBill(id) {
   const b = state.bills.find(x => x.id === id);
-  if (!b || b.paid) return;
-  b.paid = true; b.paidAt = Date.now();
-  // auto-create next instance if recurring
-  if (b.recurring && b.dueDate) {
-    const next = new Date(b.dueDate + 'T00:00:00');
-    if (b.recurring === 'monthly') next.setMonth(next.getMonth()+1);
-    else if (b.recurring === 'weekly') next.setDate(next.getDate()+7);
-    else if (b.recurring === 'yearly') next.setFullYear(next.getFullYear()+1);
-    state.bills.push({
-      id: nextId('bills'), name: b.name, amount: b.amount,
-      dueDate: isoDate(next), recurring: b.recurring,
-      category: b.category || null,
-      maxPct: (b.maxPct == null) ? null : b.maxPct,
-      paid: false, createdAt: Date.now()
-    });
+  if (!b) return;
+  if (b.recurring) {
+    // Recurring: advance the due date forward one period and stamp lastPaidAt.
+    // Don't create a new bill record — the same record represents the ongoing
+    // commitment, with its dueDate pointing at the next time it's owed.
+    if (b.dueDate) {
+      const next = new Date(b.dueDate + 'T00:00:00');
+      if (b.recurring === 'monthly')      next.setMonth(next.getMonth() + 1);
+      else if (b.recurring === 'weekly')  next.setDate(next.getDate() + 7);
+      else if (b.recurring === 'biweekly') next.setDate(next.getDate() + 14);
+      else if (b.recurring === 'yearly')  next.setFullYear(next.getFullYear() + 1);
+      b.dueDate = isoDate(next);
+    }
+    b.lastPaidAt = Date.now();
+    b.paid = false;        // recurring bills are never permanently paid
+    b.paidAt = null;
+  } else {
+    // One-time: lock as paid permanently
+    if (b.paid) return;
+    b.paid = true;
+    b.paidAt = Date.now();
   }
   saveState();
 }
 function unpayBill(id) {
   const b = state.bills.find(x => x.id === id);
-  if (!b || !b.paid) return;
-  b.paid = false; b.paidAt = null;
+  if (!b) return;
+  if (b.recurring) {
+    // Recurring: roll the due date back one period and clear lastPaidAt
+    if (!b.lastPaidAt && !b.paid) return;
+    if (b.dueDate) {
+      const prev = new Date(b.dueDate + 'T00:00:00');
+      if (b.recurring === 'monthly')      prev.setMonth(prev.getMonth() - 1);
+      else if (b.recurring === 'weekly')  prev.setDate(prev.getDate() - 7);
+      else if (b.recurring === 'biweekly') prev.setDate(prev.getDate() - 14);
+      else if (b.recurring === 'yearly')  prev.setFullYear(prev.getFullYear() - 1);
+      b.dueDate = isoDate(prev);
+    }
+    b.lastPaidAt = null;
+    b.paid = false;
+    b.paidAt = null;
+  } else {
+    if (!b.paid) return;
+    b.paid = false;
+    b.paidAt = null;
+  }
   saveState();
-  // Note: if this was a recurring bill, marking it paid auto-spawned a next-period
-  // instance. We leave that instance alone — if the user wants to clean it up,
-  // they can delete it manually from the Bills table.
 }
 function removeItem(id) {
   const map = { t: 'tasks', b: 'bills', e: 'events', i: 'income' };
@@ -2907,11 +2980,12 @@ function renderBillsSheet() {
     id: b.id, name: b.name, amount: b.amount,
     date: b.dueDate || '',
     frequency: b.recurring || 'one-time',
+    recurring: !!b.recurring,
     category: b.category || '',
     maxPct: (b.maxPct == null) ? null : b.maxPct,
     monthlyAmt: billMonthly(b),
     status: b.paid ? 'paid' : (isOverdue(b.dueDate) ? 'overdue' : (isTodayDate(b.dueDate) ? 'today' : (b.dueDate ? 'due' : 'no date'))),
-    paid: b.paid, raw: b
+    paid: b.paid, lastPaidAt: b.lastPaidAt || null, raw: b
   }));
   const sorted = sortRows(rows, 'bills');
   const totalDue = rows.filter(r => !r.paid).reduce((s, r) => s + r.amount, 0);
@@ -3015,9 +3089,13 @@ function renderBillsSheet() {
               pctHTML = '<span style="color: var(--text-faint);">—</span>';
             }
             const catCap = r.category ? `<span class="cat-cap">${getCategoryLabel(r.category)}</span>` : '';
+            const lastPaidCap = (r.recurring && r.lastPaidAt)
+              ? `<span class="last-paid-cap" title="Last paid ${new Date(r.lastPaidAt).toLocaleString()}">✓ paid ${formatDate(isoDate(new Date(r.lastPaidAt)))}</span>`
+              : '';
+            const showUnpaid = r.paid || (r.recurring && r.lastPaidAt);
             return `<tr class="${r.paid ? 'done' : ''}">
               <td class="id">${r.id}</td>
-              <td class="name">${escHTML(r.name)}${catCap}</td>
+              <td class="name">${escHTML(r.name)}${catCap}${lastPaidCap}</td>
               <td class="num amount bill ${isEmpty ? 'amount-empty' : ''}">${isEmpty ? '— set —' : fmtMoney(r.amount)}</td>
               <td class="pct">${pctHTML}</td>
               <td class="freq">${r.frequency}</td>
@@ -3025,7 +3103,7 @@ function renderBillsSheet() {
               <td class="status ${r.status}">${r.status}</td>
               <td class="actions">
                 ${!r.paid && !isEmpty ? `<button class="success" data-action="pay-bill" data-id="${r.id}">mark paid</button>` : ''}
-                ${r.paid ? `<button data-action="unpay-bill" data-id="${r.id}">mark unpaid</button>` : ''}
+                ${showUnpaid ? `<button data-action="unpay-bill" data-id="${r.id}">${r.recurring ? 'undo last paid' : 'mark unpaid'}</button>` : ''}
                 <button class="${editCls}" data-action="edit" data-type="bills" data-id="${r.id}">${editLabel}</button>
                 <button class="danger" data-action="remove" data-id="${r.id}">delete</button>
               </td>
