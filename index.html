@@ -46,6 +46,154 @@
     --radius: 6px;
   }
 
+  /* ════════════════════════════════════════════════════════════════
+     THEME OVERRIDES — applied via html.theme-{name} class
+     ════════════════════════════════════════════════════════════════ */
+
+  /* Phosphor — classic green CRT, scanlines, slight glow */
+  html.theme-phosphor {
+    --bg: #050a05;
+    --bg-soft: #0a140a;
+    --bg-input: #0f1a0f;
+    --bg-row-hover: #0d180d;
+    --border: #1a3a1a;
+    --border-soft: #0f2010;
+    --border-strong: #2a6622;
+    --text: #00d965;
+    --text-bright: #b3ffb3;
+    --text-dim: #00aa44;
+    --text-faint: #007733;
+    --text-muted: #004a22;
+    --accent: #00ff66;
+    --accent-soft: rgba(0,255,102,0.12);
+    --accent-hover: #66ff99;
+    --income: #00ff66;
+    --income-soft: rgba(0,255,102,0.12);
+    --bill: #ff5544;
+    --bill-soft: rgba(255,85,68,0.12);
+    --task: #00ff66;
+    --task-soft: rgba(0,255,102,0.12);
+    --event: #00ddff;
+    --event-soft: rgba(0,221,255,0.12);
+    --error: #ff4444;
+    --error-soft: rgba(255,68,68,0.12);
+    --success: #00ff99;
+    --info: #00ddff;
+  }
+  html.theme-phosphor body { text-shadow: 0 0 4px rgba(0,255,102,0.32); }
+
+  /* Amber — vintage orange CRT (1970s/80s monochrome monitor) */
+  html.theme-amber {
+    --bg: #0a0500;
+    --bg-soft: #14100a;
+    --bg-input: #1a1408;
+    --bg-row-hover: #1a1208;
+    --border: #3a2a0a;
+    --border-soft: #221808;
+    --border-strong: #553c0e;
+    --text: #ffaa00;
+    --text-bright: #ffdd99;
+    --text-dim: #cc8800;
+    --text-faint: #885500;
+    --text-muted: #553300;
+    --accent: #ff9933;
+    --accent-soft: rgba(255,153,51,0.12);
+    --accent-hover: #ffb866;
+    --income: #b3dd44;
+    --income-soft: rgba(179,221,68,0.12);
+    --bill: #ff5544;
+    --bill-soft: rgba(255,85,68,0.12);
+    --task: #ff9933;
+    --task-soft: rgba(255,153,51,0.12);
+    --event: #66ddff;
+    --event-soft: rgba(102,221,255,0.12);
+    --error: #ff4444;
+    --error-soft: rgba(255,68,68,0.12);
+    --success: #b3dd44;
+    --info: #66ddff;
+  }
+  html.theme-amber body { text-shadow: 0 0 4px rgba(255,170,0,0.32); }
+
+  /* Scanlines for the CRT themes */
+  html.theme-phosphor body::after,
+  html.theme-amber body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    background-image: repeating-linear-gradient(
+      to bottom,
+      rgba(0,0,0,0) 0,
+      rgba(0,0,0,0) 2px,
+      rgba(0,0,0,0.18) 2px,
+      rgba(0,0,0,0.18) 3px
+    );
+  }
+
+  /* Solarized Dark — classic developer palette, polished, easy on eyes */
+  html.theme-solarized {
+    --bg: #002b36;
+    --bg-soft: #073642;
+    --bg-input: #0a3a47;
+    --bg-row-hover: #0d4452;
+    --border: #094352;
+    --border-soft: #073642;
+    --border-strong: #586e75;
+    --text: #93a1a1;
+    --text-bright: #fdf6e3;
+    --text-dim: #839496;
+    --text-faint: #657b83;
+    --text-muted: #586e75;
+    --accent: #b58900;
+    --accent-soft: rgba(181,137,0,0.13);
+    --accent-hover: #cc9900;
+    --income: #859900;
+    --income-soft: rgba(133,153,0,0.13);
+    --bill: #cb4b16;
+    --bill-soft: rgba(203,75,22,0.13);
+    --task: #b58900;
+    --task-soft: rgba(181,137,0,0.13);
+    --event: #268bd2;
+    --event-soft: rgba(38,139,210,0.13);
+    --error: #dc322f;
+    --error-soft: rgba(220,50,47,0.13);
+    --success: #859900;
+    --info: #268bd2;
+  }
+
+  /* Synthwave — neon retro, cyberpunk vibes */
+  html.theme-synthwave {
+    --bg: #0d0221;
+    --bg-soft: #1a0533;
+    --bg-input: #2a0844;
+    --bg-row-hover: #260944;
+    --border: #4d2a7a;
+    --border-soft: #2a155a;
+    --border-strong: #6c3aa8;
+    --text: #e2c4ff;
+    --text-bright: #ffffff;
+    --text-dim: #c08fed;
+    --text-faint: #8a64bb;
+    --text-muted: #5a4477;
+    --accent: #ff00ff;
+    --accent-soft: rgba(255,0,255,0.15);
+    --accent-hover: #ff66ff;
+    --income: #00ffd5;
+    --income-soft: rgba(0,255,213,0.15);
+    --bill: #ff3399;
+    --bill-soft: rgba(255,51,153,0.15);
+    --task: #ff00ff;
+    --task-soft: rgba(255,0,255,0.15);
+    --event: #00ddff;
+    --event-soft: rgba(0,221,255,0.15);
+    --error: #ff1166;
+    --error-soft: rgba(255,17,102,0.15);
+    --success: #00ffd5;
+    --info: #00ddff;
+  }
+  html.theme-synthwave body { text-shadow: 0 0 4px rgba(255,0,255,0.22); }
+
   html, body {
     background: var(--bg);
     color: var(--text);
@@ -66,7 +214,7 @@
     background: var(--bg);
     position: sticky;
     top: 0;
-    z-index: 5;
+    z-index: 50;
     gap: 24px;
     overflow-x: auto;
   }
@@ -152,6 +300,14 @@
     border-radius: 4px;
   }
   .menu-item:hover { background: var(--bg-input); color: var(--text-bright); }
+  .menu-item.theme-pick.active::before {
+    content: '✓ ';
+    color: var(--accent);
+  }
+  .menu-item.theme-pick.active {
+    color: var(--accent);
+    background: var(--accent-soft);
+  }
   .menu-divider { height: 1px; background: var(--border); margin: 4px 2px; }
   .menu-label { font-size: 10.5px; color: var(--text-faint); padding: 6px 10px 4px; text-transform: uppercase; letter-spacing: 0.8px; }
 
@@ -569,6 +725,89 @@
   .rec-icon.success { background: rgba(134,201,138,0.15); color: var(--success); }
   .rec-text { color: var(--text); flex: 1; }
   .rec-text strong { color: var(--text-bright); }
+
+  /* ─── weekly spending allowance ─── */
+  .weekly-card {
+    display: grid;
+    grid-template-columns: minmax(180px, 1fr) 2fr;
+    gap: 28px;
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    border-left: 3px solid var(--accent);
+    padding: 22px 26px;
+    margin-bottom: 22px;
+    align-items: center;
+  }
+  .weekly-card.constrained { border-left-color: var(--error); }
+  .weekly-card .headline { display: flex; flex-direction: column; }
+  .weekly-card .headline .label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--text-faint);
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+  .weekly-card .headline .value {
+    font-size: 40px;
+    font-weight: 600;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -1.2px;
+    line-height: 1;
+  }
+  .weekly-card.constrained .headline .value { color: var(--error); }
+  .weekly-card .headline .unit { font-size: 16px; color: var(--text-faint); margin-left: 2px; }
+  .weekly-card .headline .daily {
+    font-size: 12.5px;
+    color: var(--text-dim);
+    margin-top: 8px;
+    font-variant-numeric: tabular-nums;
+  }
+  .weekly-card .headline .note {
+    font-size: 11.5px;
+    color: var(--text-faint);
+    margin-top: 6px;
+    line-height: 1.5;
+    font-style: italic;
+  }
+  .weekly-math {
+    font-size: 12.5px;
+    color: var(--text-dim);
+    line-height: 1.7;
+    font-variant-numeric: tabular-nums;
+    border-left: 1px dashed var(--border);
+    padding-left: 24px;
+  }
+  .weekly-math .row {
+    display: flex;
+    justify-content: space-between;
+    padding: 1px 0;
+  }
+  .weekly-math .row.total {
+    padding-top: 8px;
+    margin-top: 4px;
+    border-top: 1px dashed var(--border-soft);
+    color: var(--text-bright);
+    font-weight: 500;
+  }
+  .weekly-math .row .label { color: var(--text-faint); }
+  .weekly-math .row .value { color: var(--text); }
+  .weekly-math .row .value.income { color: var(--income); }
+  .weekly-math .row .value.bill { color: var(--bill); }
+  .weekly-math .row .value.savings { color: var(--task); }
+  .weekly-math .formula {
+    font-size: 11.5px;
+    color: var(--text-faint);
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px dashed var(--border-soft);
+  }
+  @media (max-width: 720px) {
+    .weekly-card { grid-template-columns: 1fr; gap: 16px; }
+    .weekly-math { border-left: none; border-top: 1px dashed var(--border); padding-left: 0; padding-top: 14px; }
+  }
 
   /* ─── savings goals ─── */
   .goals-grid {
@@ -1330,6 +1569,13 @@
       <div class="menu-label">Quick start</div>
       <button class="menu-item" data-action="preset-bills">Add common monthly bills</button>
       <div class="menu-divider"></div>
+      <div class="menu-label">Theme</div>
+      <button class="menu-item theme-pick" data-action="theme" data-theme="default">Default</button>
+      <button class="menu-item theme-pick" data-action="theme" data-theme="phosphor">Phosphor (green CRT)</button>
+      <button class="menu-item theme-pick" data-action="theme" data-theme="amber">Amber (vintage CRT)</button>
+      <button class="menu-item theme-pick" data-action="theme" data-theme="solarized">Solarized Dark</button>
+      <button class="menu-item theme-pick" data-action="theme" data-theme="synthwave">Synthwave</button>
+      <div class="menu-divider"></div>
       <div class="menu-label">Data</div>
       <button class="menu-item" data-action="export">Export JSON</button>
       <button class="menu-item" data-action="import">Import JSON</button>
@@ -1906,6 +2152,22 @@ function getMonthlyBills() {
 // viewMonth = null → current month. Otherwise {year, month: 0-11}.
 let viewMonth = null;
 
+// ── theme system ──
+const VALID_THEMES = ['default', 'phosphor', 'amber', 'solarized', 'synthwave'];
+function applyTheme(name) {
+  const theme = VALID_THEMES.includes(name) ? name : 'default';
+  // remove any existing theme classes
+  document.documentElement.classList.remove('theme-phosphor', 'theme-amber', 'theme-solarized', 'theme-synthwave');
+  if (theme !== 'default') document.documentElement.classList.add('theme-' + theme);
+  localStorage.setItem('termdo-theme', theme);
+  // mark the active menu entry
+  document.querySelectorAll('.menu-item.theme-pick').forEach(b => {
+    b.classList.toggle('active', b.dataset.theme === theme);
+  });
+}
+// apply saved theme on load (the menu items get their .active class set after the DOM exists)
+applyTheme(localStorage.getItem('termdo-theme') || 'default');
+
 function getViewMonth() {
   if (viewMonth) return viewMonth;
   const d = new Date();
@@ -2431,6 +2693,49 @@ function getBucketTotals(billsList, totalIncome) {
   // implicit savings = income - needs - wants
   result.savings = Math.max(0, totalIncome - (result.needs || 0) - (result.wants || 0));
   return result;
+}
+
+// Sum the monthly contribution implied by each savings goal (remaining ÷ months left).
+// Goals without a target date OR already met contribute zero — they're aspirational
+// or done, not a binding monthly commitment.
+function getMonthlySavingsTarget() {
+  if (!Array.isArray(state.goals) || state.goals.length === 0) return 0;
+  const today = todayStart();
+  let total = 0;
+  const breakdown = [];
+  for (const g of state.goals) {
+    const target = Number(g.targetAmount) || 0;
+    const saved  = Number(g.currentAmount) || 0;
+    const remaining = Math.max(0, target - saved);
+    if (remaining === 0 || !g.targetDate) continue;
+    const targetDate = new Date(g.targetDate + 'T00:00:00');
+    if (targetDate <= today) continue; // past due, no further required pace
+    const monthsLeft = Math.max(1, Math.round((targetDate - today) / (30 * 86400000)));
+    const monthly = remaining / monthsLeft;
+    total += monthly;
+    breakdown.push({ name: g.name, monthly, monthsLeft });
+  }
+  return { total, breakdown };
+}
+
+// Compute per-week / per-day spending allowance after bills and required savings.
+// Uses 4.33 = average weeks per month, 30 = average days per month.
+function calculateWeeklyAllowance(monthlyIncome, monthlyBills) {
+  const savingsInfo = getMonthlySavingsTarget();
+  const monthlySavingsTarget = savingsInfo.total || 0;
+  const monthlyAvailable = monthlyIncome - monthlyBills - monthlySavingsTarget;
+  return {
+    monthlyIncome,
+    monthlyBills,
+    monthlySavingsTarget,
+    monthlyAvailable,
+    weekly: monthlyAvailable / 4.33,
+    daily:  monthlyAvailable / 30,
+    savingsBreakdown: savingsInfo.breakdown || [],
+    hasGoalsWithoutDate: Array.isArray(state.goals) && state.goals.some(g =>
+      g.targetAmount > 0 && (g.currentAmount || 0) < g.targetAmount && !g.targetDate
+    )
+  };
 }
 
 function generateRecommendations(income, totalBills, billsList, buckets) {
@@ -2987,6 +3292,8 @@ function renderBudget() {
       </div>
     </div>
 
+    ${renderWeeklyAllowance(totalIncome, totalBills)}
+
     <div class="budget-buckets">
       ${bucketHTML}
     </div>
@@ -3002,6 +3309,66 @@ function renderBudget() {
     </div>
     <div class="recommendations">
       ${recsHTML || '<div class="rec-item"><div class="rec-text" style="color: var(--text-faint); font-style: italic;">Add income and bills to see personalized recommendations.</div></div>'}
+    </div>
+  `;
+}
+
+function renderWeeklyAllowance(totalIncome, totalBills) {
+  if (totalIncome === 0 && totalBills === 0) {
+    return `<div class="weekly-card" style="border-left-color: var(--border);">
+      <div class="headline">
+        <span class="label">Weekly allowance</span>
+        <span class="value" style="color: var(--text-faint); font-size: 26px;">—</span>
+        <span class="note">Add income and bills to see how much you can spend each week.</span>
+      </div>
+      <div class="weekly-math" style="border-left-color: var(--border-soft);">
+        <div class="formula">income − bills − savings target ÷ 4.33 weeks/mo</div>
+      </div>
+    </div>`;
+  }
+
+  const w = calculateWeeklyAllowance(totalIncome, totalBills);
+  const weeklyAbs = Math.abs(w.weekly);
+  const dailyAbs  = Math.abs(w.daily);
+  const isNegative = w.monthlyAvailable < 0;
+  const sign = isNegative ? '−' : '';
+
+  const breakdownLines = w.savingsBreakdown.length
+    ? w.savingsBreakdown.map(b =>
+        `<div class="row"><span class="label" style="padding-left: 12px;">${escHTML(b.name)}</span><span class="value savings">${fmtMoney(b.monthly, {round: true})}</span></div>`
+      ).join('')
+    : '';
+
+  const noteParts = [];
+  if (isNegative) {
+    noteParts.push('You\'re over budget — bills + savings target exceed income.');
+  } else if (w.monthlySavingsTarget === 0) {
+    noteParts.push('No active savings goals with deadlines — set one to factor it in.');
+  } else {
+    noteParts.push(`After bills and ${fmtMoney(w.monthlySavingsTarget, {round: true})}/mo toward savings goals.`);
+  }
+  if (w.hasGoalsWithoutDate) {
+    noteParts.push('Goals without target dates aren\'t included.');
+  }
+
+  return `
+    <div class="weekly-card${isNegative ? ' constrained' : ''}">
+      <div class="headline">
+        <span class="label">Weekly spending allowance</span>
+        <span class="value">${sign}${fmtMoney(weeklyAbs, {round: true})}<span class="unit">/wk</span></span>
+        <span class="daily">~${sign}${fmtMoney(dailyAbs, {round: true})}/day</span>
+        <span class="note">${noteParts.join(' ')}</span>
+      </div>
+      <div class="weekly-math">
+        <div class="row"><span class="label">Income</span><span class="value income">${fmtMoney(w.monthlyIncome, {round: true})}</span></div>
+        <div class="row"><span class="label">− Bills</span><span class="value bill">${fmtMoney(w.monthlyBills, {round: true})}</span></div>
+        ${w.monthlySavingsTarget > 0 ? `
+          <div class="row"><span class="label">− Savings target</span><span class="value savings">${fmtMoney(w.monthlySavingsTarget, {round: true})}</span></div>
+          ${breakdownLines}
+        ` : ''}
+        <div class="row total"><span class="label">= Available / month</span><span class="value">${isNegative ? '−' : ''}${fmtMoney(Math.abs(w.monthlyAvailable), {round: true})}</span></div>
+        <div class="formula">÷ 4.33 weeks ≈ ${sign}${fmtMoney(weeklyAbs, {round: true})}/wk · ÷ 30 days ≈ ${sign}${fmtMoney(dailyAbs, {round: true})}/day</div>
+      </div>
     </div>
   `;
 }
@@ -3637,6 +4004,7 @@ document.addEventListener('click', (e) => {
   else if (action === 'toggle-menu') document.getElementById('menu').classList.toggle('open');
   else if (action === 'export') { exportData(); document.getElementById('menu').classList.remove('open'); }
   else if (action === 'import') { document.getElementById('file-import').click(); document.getElementById('menu').classList.remove('open'); }
+  else if (action === 'theme') { applyTheme(target.dataset.theme); }
   else if (action === 'reset') {
     if (confirm('Delete everything? This cannot be undone.')) {
       state = { tasks: [], bills: [], events: [], income: [] };
