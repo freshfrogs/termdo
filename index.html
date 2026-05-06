@@ -570,6 +570,121 @@
   .rec-text { color: var(--text); flex: 1; }
   .rec-text strong { color: var(--text-bright); }
 
+  /* ─── savings goals ─── */
+  .goals-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+  .goal-card {
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    border-top: 3px solid var(--income);
+  }
+  .goal-card.complete { border-top-color: var(--success); }
+  .goal-card.behind { border-top-color: var(--accent); }
+  .goal-card.overdue { border-top-color: var(--error); }
+  .goal-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 4px;
+    gap: 8px;
+  }
+  .goal-head .name {
+    font-size: 14.5px;
+    font-weight: 600;
+    color: var(--text-bright);
+    letter-spacing: -0.2px;
+  }
+  .goal-head .pct {
+    font-size: 12px;
+    color: var(--text-faint);
+    font-variant-numeric: tabular-nums;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+  }
+  .goal-target-line {
+    font-size: 11.5px;
+    color: var(--text-faint);
+    margin-bottom: 12px;
+  }
+  .goal-progress {
+    height: 8px;
+    background: var(--bg-input);
+    border-radius: 2px;
+    overflow: hidden;
+    margin: 8px 0 6px;
+    border: 1px solid var(--border-soft);
+  }
+  .goal-progress-fill {
+    height: 100%;
+    background: var(--income);
+    border-radius: 2px;
+    transition: width 0.3s;
+  }
+  .goal-card.complete .goal-progress-fill { background: var(--success); }
+  .goal-card.behind .goal-progress-fill { background: var(--accent); }
+  .goal-card.overdue .goal-progress-fill { background: var(--error); }
+  .goal-stats {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12.5px;
+    color: var(--text-dim);
+    margin: 8px 0;
+    font-variant-numeric: tabular-nums;
+  }
+  .goal-stats .saved { color: var(--text-bright); font-weight: 500; }
+  .goal-monthly {
+    font-size: 11.5px;
+    color: var(--text-faint);
+    padding: 6px 0;
+    border-top: 1px dashed var(--border-soft);
+    margin-top: 6px;
+  }
+  .goal-monthly strong { color: var(--text); font-weight: 500; }
+  .goal-notes {
+    font-size: 11.5px;
+    color: var(--text-faint);
+    font-style: italic;
+    padding-top: 6px;
+    line-height: 1.5;
+  }
+  .goal-actions {
+    display: flex;
+    gap: 6px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--border-soft);
+  }
+  .goal-actions button {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font: inherit;
+    font-size: 11.5px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.12s;
+  }
+  .goal-actions button:hover { color: var(--text-bright); border-color: var(--border-soft); background: var(--bg-input); }
+  .goal-actions button.primary { color: var(--income); border-color: var(--income); }
+  .goal-actions button.primary:hover { background: rgba(134,201,138,0.1); }
+  .goal-actions button.danger { color: var(--error); }
+  .goal-empty {
+    text-align: center;
+    padding: 22px;
+    color: var(--text-faint);
+    font-size: 12.5px;
+    border: 1px dashed var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 14px;
+  }
+
   .narrative-sources, .narrative-cats {
     list-style: none;
     padding: 0;
@@ -1421,6 +1536,47 @@
   </div>
 </div>
 
+<div class="modal" id="modal-goals">
+  <div class="modal-backdrop" data-action="close-modal"></div>
+  <div class="modal-card">
+    <div class="modal-title">Add savings goal</div>
+    <form data-type="goals">
+      <div class="form-row">
+        <div class="form-col">
+          <label class="form-label">Goal name</label>
+          <input type="text" class="input" name="name" placeholder="Winter buffer, emergency fund, vacation..." required maxlength="60">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-col">
+          <label class="form-label">Target amount</label>
+          <input type="text" class="input" name="targetAmount" placeholder="4000" inputmode="decimal" required>
+        </div>
+        <div class="form-col">
+          <label class="form-label">Target date (optional)</label>
+          <input type="date" class="input" name="targetDate">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-col">
+          <label class="form-label">Currently saved</label>
+          <input type="text" class="input" name="currentAmount" placeholder="0" inputmode="decimal" value="0">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-col">
+          <label class="form-label">Notes (optional)</label>
+          <textarea class="input" name="notes" placeholder="Why this goal? When you'll need it?" rows="2" style="resize: vertical; min-height: 36px;"></textarea>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn" data-action="close-modal">Cancel</button>
+        <button type="submit" class="btn primary">Add goal</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <input type="file" id="file-import" class="hidden" accept=".json,application/json">
 
 <div class="modal" id="modal-presets">
@@ -1452,10 +1608,12 @@
 const STORAGE_KEY = 'termdo-state-v4';
 const TAB_KEY = 'termdo-tab';
 
-let state = loadState() || { tasks: [], bills: [], events: [], income: [] };
+let state = loadState() || { tasks: [], bills: [], events: [], income: [], goals: [] };
 
 // ensure income array exists for older data
 if (!Array.isArray(state.income)) state.income = [];
+// ensure goals array exists for older data
+if (!Array.isArray(state.goals)) state.goals = [];
 
 // migrate: any one-time income missing a receivedAt gets backfilled from createdAt
 // so it shows up in some month's budget instead of being invisible
@@ -1710,7 +1868,7 @@ function fmtHM(decimal) {
 // id generation
 // ════════════════════════════════════════════════════════════════
 function nextId(collection) {
-  const prefix = { tasks: 't', bills: 'b', events: 'e', income: 'i' }[collection];
+  const prefix = { tasks: 't', bills: 'b', events: 'e', income: 'i', goals: 'g' }[collection];
   let max = 0;
   for (const item of state[collection]) {
     const n = parseInt(item.id.slice(1), 10);
@@ -1955,6 +2113,27 @@ function addIncome(source, amount, frequency, receivedAt, hours, cashTipPct, cas
   });
   saveState();
 }
+function addGoal(name, targetAmount, targetDate, notes) {
+  if (!name || isNaN(targetAmount) || targetAmount <= 0) return;
+  state.goals.push({
+    id: nextId('goals'),
+    name: name.trim(),
+    targetAmount: Number(targetAmount),
+    currentAmount: 0,
+    targetDate: targetDate || null,
+    notes: notes ? notes.trim() : '',
+    createdAt: Date.now()
+  });
+  saveState();
+}
+function addToGoalSaved(id, delta) {
+  const g = state.goals.find(x => x.id === id);
+  if (!g) return;
+  const d = Number(delta);
+  if (isNaN(d)) return;
+  g.currentAmount = Math.max(0, (g.currentAmount || 0) + d);
+  saveState();
+}
 function toggleTask(id) {
   const t = state.tasks.find(x => x.id === id);
   if (!t) return;
@@ -2013,7 +2192,7 @@ function unpayBill(id) {
   saveState();
 }
 function removeItem(id) {
-  const map = { t: 'tasks', b: 'bills', e: 'events', i: 'income' };
+  const map = { t: 'tasks', b: 'bills', e: 'events', i: 'income', g: 'goals' };
   const collection = map[id[0]];
   if (!collection) return;
   state[collection] = state[collection].filter(x => x.id !== id);
@@ -2021,7 +2200,7 @@ function removeItem(id) {
 }
 
 function typeLabel(type) {
-  return { tasks: 'task', bills: 'bill', events: 'event', income: 'income' }[type] || type;
+  return { tasks: 'task', bills: 'bill', events: 'event', income: 'income', goals: 'goal' }[type] || type;
 }
 
 function prefillForm(type, item) {
@@ -2068,6 +2247,12 @@ function prefillForm(type, item) {
       form.cashTipPct.value    = (mode === 'percent' && item.cashTipPct    != null) ? item.cashTipPct    : '';
       form.cashTipAmount.value = (mode === 'amount'  && item.cashTipAmount != null) ? item.cashTipAmount.toFixed(2) : '';
     }
+  } else if (type === 'goals') {
+    form.name.value = item.name || '';
+    form.targetAmount.value = item.targetAmount > 0 ? item.targetAmount.toFixed(2) : '';
+    form.targetDate.value = item.targetDate || '';
+    form.currentAmount.value = (item.currentAmount != null) ? item.currentAmount.toFixed(2) : '0';
+    if (form.notes) form.notes.value = item.notes || '';
   }
 }
 
@@ -2807,12 +2992,101 @@ function renderBudget() {
     </div>
 
     <div class="ov-section-head">
+      <span class="label">Savings goals</span>
+      <button class="btn primary" data-action="open-modal" data-type="goals">+ goal</button>
+    </div>
+    ${renderGoalsSection()}
+
+    <div class="ov-section-head">
       <span class="label">Recommendations</span>
     </div>
     <div class="recommendations">
       ${recsHTML || '<div class="rec-item"><div class="rec-text" style="color: var(--text-faint); font-style: italic;">Add income and bills to see personalized recommendations.</div></div>'}
     </div>
   `;
+}
+
+function renderGoalsSection() {
+  if (!state.goals.length) {
+    return `<div class="goal-empty">
+      No savings goals yet. Click <strong>+ goal</strong> above to add one — common goals: emergency fund, winter buffer, vacation, debt payoff target.
+    </div>`;
+  }
+  const today = todayStart();
+  const cards = state.goals.map(g => {
+    const target = Number(g.targetAmount) || 0;
+    const saved = Number(g.currentAmount) || 0;
+    const remaining = Math.max(0, target - saved);
+    const pct = target > 0 ? Math.min(100, (saved / target) * 100) : 0;
+
+    let monthsLeft = null;
+    let pastDue = false;
+    if (g.targetDate) {
+      const targetDate = new Date(g.targetDate + 'T00:00:00');
+      const diffMs = targetDate - today;
+      const diffDays = Math.ceil(diffMs / 86400000);
+      if (diffDays < 0) {
+        pastDue = true;
+      } else {
+        monthsLeft = Math.max(1, Math.round(diffDays / 30));
+      }
+    }
+
+    let statusCls = '';
+    if (pct >= 100) statusCls = 'complete';
+    else if (pastDue) statusCls = 'overdue';
+    else if (g.targetDate && monthsLeft) {
+      // expected monthly pace: target/months from goal creation to target date.
+      // If actual saved is meaningfully behind expected, mark behind.
+      const totalMs = new Date(g.targetDate + 'T00:00:00') - new Date(g.createdAt);
+      const elapsedMs = today - new Date(g.createdAt);
+      if (totalMs > 0) {
+        const expectedPct = Math.min(100, (elapsedMs / totalMs) * 100);
+        if (expectedPct - pct > 15) statusCls = 'behind';
+      }
+    }
+
+    const monthlyNeed = (g.targetDate && !pastDue && monthsLeft && remaining > 0)
+      ? remaining / monthsLeft
+      : null;
+
+    const targetLine = g.targetDate
+      ? (pastDue
+          ? `${fmtMoney(target, {round: true})} target · <span style="color: var(--error);">target date passed</span>`
+          : `${fmtMoney(target, {round: true})} by ${formatDate(g.targetDate)}${monthsLeft ? ` · ${monthsLeft} month${monthsLeft === 1 ? '' : 's'} left` : ''}`)
+      : `${fmtMoney(target, {round: true})} target · no deadline`;
+
+    const monthlyLine = monthlyNeed != null
+      ? `Need <strong>${fmtMoney(monthlyNeed, {round: true})}/mo</strong> to hit target on time`
+      : (pct >= 100
+          ? `<strong style="color: var(--success);">Goal reached.</strong> ${remaining > 0 ? '' : 'Nice work.'}`
+          : remaining > 0
+            ? `<strong>${fmtMoney(remaining, {round: true})}</strong> to go`
+            : '');
+
+    return `<div class="goal-card ${statusCls}">
+      <div class="goal-head">
+        <span class="name">${escHTML(g.name)}</span>
+        <span class="pct">${pct.toFixed(0)}%</span>
+      </div>
+      <div class="goal-target-line">${targetLine}</div>
+      <div class="goal-progress"><div class="goal-progress-fill" style="width: ${pct.toFixed(1)}%;"></div></div>
+      <div class="goal-stats">
+        <span class="saved">${fmtMoney(saved, {round: true})} saved</span>
+        <span>of ${fmtMoney(target, {round: true})}</span>
+      </div>
+      ${monthlyLine ? `<div class="goal-monthly">${monthlyLine}</div>` : ''}
+      ${g.notes ? `<div class="goal-notes">${escHTML(g.notes)}</div>` : ''}
+      <div class="goal-actions">
+        <button class="primary" data-action="goal-add" data-id="${g.id}" title="Add money to this goal">+ deposit</button>
+        <button data-action="goal-subtract" data-id="${g.id}" title="Withdraw / correct">− withdraw</button>
+        <button data-action="edit" data-type="goals" data-id="${g.id}">edit</button>
+        <button class="danger" data-action="remove" data-id="${g.id}">delete</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  return `<div class="goals-grid">${cards}</div>`;
 }
 
 // ── sheets ──
@@ -3304,6 +3578,24 @@ document.addEventListener('click', (e) => {
   else if (action === 'toggle-task') { toggleTask(target.dataset.id); render(); }
   else if (action === 'pay-bill') { payBill(target.dataset.id); render(); }
   else if (action === 'unpay-bill') { unpayBill(target.dataset.id); render(); }
+  else if (action === 'goal-add') {
+    const id = target.dataset.id;
+    const g = state.goals.find(x => x.id === id);
+    if (!g) return;
+    const input = prompt(`How much to add to "${g.name}"?`, '');
+    if (input == null) return;
+    const amt = parseFloat(String(input).replace(/[^0-9.\-]/g, ''));
+    if (!isNaN(amt) && amt > 0) { addToGoalSaved(id, amt); render(); }
+  }
+  else if (action === 'goal-subtract') {
+    const id = target.dataset.id;
+    const g = state.goals.find(x => x.id === id);
+    if (!g) return;
+    const input = prompt(`How much to withdraw from "${g.name}"? (Will reduce saved amount.)`, '');
+    if (input == null) return;
+    const amt = parseFloat(String(input).replace(/[^0-9.\-]/g, ''));
+    if (!isNaN(amt) && amt > 0) { addToGoalSaved(id, -amt); render(); }
+  }
   else if (action === 'remove') {
     if (confirm('Delete this item?')) { removeItem(target.dataset.id); render(); }
   }
@@ -3439,6 +3731,16 @@ document.addEventListener('submit', (e) => {
           item.cashTipPct = null;
           item.cashTipAmount = null;
         }
+      } else if (type === 'goals') {
+        const name = (fd.get('name') || '').trim();
+        const target = parseAmount(fd.get('targetAmount'));
+        const current = parseAmount(fd.get('currentAmount'));
+        if (!name || isNaN(target) || target <= 0) { alert('Please enter a name and a positive target amount.'); return; }
+        item.name = name;
+        item.targetAmount = target;
+        item.currentAmount = isNaN(current) ? 0 : Math.max(0, current);
+        item.targetDate = fd.get('targetDate') || null;
+        item.notes = (fd.get('notes') || '').trim();
       }
       saveState();
     }
@@ -3471,6 +3773,17 @@ document.addEventListener('submit', (e) => {
         if (!isNaN(v) && v > 0) cashTipAmount = v;
       }
       addIncome(fd.get('source'), amount, fd.get('frequency') || 'monthly', fd.get('receivedAt') || null, hours, cashTipPct, cashTipAmount);
+    } else if (type === 'goals') {
+      const name = (fd.get('name') || '').trim();
+      const target = parseAmount(fd.get('targetAmount'));
+      const current = parseAmount(fd.get('currentAmount'));
+      if (!name || isNaN(target) || target <= 0) { alert('Please enter a name and a positive target amount.'); return; }
+      addGoal(name, target, fd.get('targetDate') || null, fd.get('notes') || '');
+      // bump the just-added goal's currentAmount if user provided one
+      if (!isNaN(current) && current > 0) {
+        const newest = state.goals[state.goals.length - 1];
+        if (newest) { newest.currentAmount = current; saveState(); }
+      }
     }
   }
 
